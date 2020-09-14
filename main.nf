@@ -43,7 +43,7 @@ if (params.help) {
    .map { file -> tuple(file.simpleName, file) }
    .into { genome_runMinimap2; genome_runAssemblathonStats; genome_BUSCO }
 
-   process {
+   process splitTuple {
      input:
      set val(label), file(genomeFile) from genome_runMinimap2
 
@@ -51,10 +51,10 @@ if (params.help) {
      val label into genomeLabel_ch
      file(genomeFile) into genomeFile_ch
 
-     script:
-     """
-     echo "process requires a script"
-     """
+//     script:
+//     """
+//     echo "process requires a script"
+//     """
    }
 
 // chunk the fastq file and create a channel for the chunks
