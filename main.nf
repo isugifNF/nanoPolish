@@ -88,8 +88,8 @@ process runMinimap2 {
 }
 
     alignment_output
-        .collectFile(name: 'aligned_combined.txt', storeDir: params.outdir)
-        //.set { overlaps_ch }
+        .collectFile(name: 'aligned_combined.sam', storeDir: params.outdir)
+        .set { overlaps_ch }
 
 
 
@@ -100,9 +100,9 @@ process runMinimap2 {
       input:
       path reads from read_file2.val
       path genomeFile from genome_runRacon.val
-      //path overlaps from overlaps_ch
+      path overlaps from overlaps_ch
       //file overlaps from alignment_output.collectFile(name: 'aligned_combined.txt')
-    //  path overlaps from Channel.fromPath("${params.outdir}/aligned_combined.txt")
+      //path overlaps from Channel.fromPath("${params.outdir}/aligned_combined.txt")
       val label from genomeLabel_runRacon.val
 
       output:
@@ -111,10 +111,12 @@ process runMinimap2 {
 
       script:
       """
-      racon -m 8 -x -6 -g -8 -w 500 -t ${params.threads} ${reads} ${params.outdir}/aligned_combined.txt ${genomeFile} > ${label}_racon.fasta
+      racon -m 8 -x -6 -g -8 -w 500 -t ${params.threads} ${reads} ${overlaps} ${genomeFile} > ${label}_racon.fasta
       """
     }
 /*
+
+//      racon -m 8 -x -6 -g -8 -w 500 -t ${params.threads} ${reads} ${params.outdir}/aligned_combined.txt ${genomeFile} > ${label}_racon.fasta
 
   process runMedaka {
 
