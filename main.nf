@@ -49,17 +49,17 @@ if (params.help) {
    Channel
     .fromPath(params.genomes)
     .map { file -> file.simpleName}
-    .into { genomeLabel_runMinimap2; genomeLabel_runAssemblathonStats; genomeLabel_BUSCO }
+    .into { genomeLabel_runMinimap2; genomeLabel_runRacon; genomeLabel_BUSCO }
 
     Channel
      .fromPath(params.genomes)
-     .into { genome_runMinimap2; genome_runAssemblathonStats; genome_BUSCO }
+     .into { genome_runMinimap2; genome_runRacon; genome_BUSCO }
 
 //Channels for reads and chunks of reads
 
   Channel
       .fromPath(params.reads)
-      .set { read_file }
+      .into { read_file, read_file2 }
 
    Channel
        .fromPath(params.reads)
@@ -67,25 +67,25 @@ if (params.help) {
        .set { read_chunks }
 
 
-    process runMinimap2 {
+process runMinimap2 {
 
-      container = "$medaka_container"
+  container = "$medaka_container"
 
-      input:
-      //set val(label), file(genomeFile) from genome_runMinimap2
-      val label from genomeLabel_runMinimap2.val
-      path genomeFile from genome_runMinimap2.val
-      path readsChunk from read_chunks
+  input:
+  //set val(label), file(genomeFile) from genome_runMinimap2
+  val label from genomeLabel_runMinimap2.val
+  path genomeFile from genome_runMinimap2.val
+  path readsChunk from read_chunks
 
-      output:
-      file("${label}.sam") into alignment_output
-      //publishDir "${params.outdir}/assemblyStats", mode: 'copy', pattern: '*.assemblyStat'
+  output:
+  file("${label}.sam") into alignment_output
+  //publishDir "${params.outdir}/assemblyStats", mode: 'copy', pattern: '*.assemblyStat'
 
-      script:
-      """
-      minimap2 -ax map-ont ${genomeFile} ${readsChunk} > ${label}.sam
-      """
-    }
+  script:
+  """
+  minimap2 -ax map-ont ${genomeFile} ${readsChunk} > ${label}.sam
+  """
+}
 
     alignment_output
         .collectFile(name: 'aligned_combined.txt', storeDir: params.outdir)
@@ -98,12 +98,12 @@ if (params.help) {
       container = "$racon_container"
 
       input:
-      path reads from read_file.val
-      path genomeFile from genome_runMinimap2.val
+      path reads from read_file2.val
+      path genomeFile from genome_runRacon.val
       //path overlaps from overlaps_ch
       //file overlaps from alignment_output.collectFile(name: 'aligned_combined.txt')
     //  path overlaps from Channel.fromPath("${params.outdir}/aligned_combined.txt")
-      val label from genomeLabel_runMinimap2.val
+      val label from genomeLabel_runRacon.val
 
       output:
       file("${label}_racon.fasta")
