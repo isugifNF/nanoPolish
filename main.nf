@@ -51,7 +51,7 @@ if (params.help) {
      val label into genomeLabel_ch
      file(genomeFile) into genomeFile_ch
 
-     script
+     script:
      """
      echo "process requires a script"
      """
