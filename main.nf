@@ -102,7 +102,7 @@ if (params.help) {
       path genomeFile from genome_runMinimap2.val
       //path overlaps from overlaps_ch
       //file overlaps from alignment_output.collectFile(name: 'aligned_combined.txt')
-      path overlaps from Channel.fromPath("${params.outdir}/aligned_combined.txt")
+    //  path overlaps from Channel.fromPath("${params.outdir}/aligned_combined.txt")
       val label from genomeLabel_runMinimap2.val
 
       output:
@@ -111,7 +111,7 @@ if (params.help) {
 
       script:
       """
-      racon -m 8 -x -6 -g -8 -w 500 -t ${params.threads} ${reads} ${overlaps} ${genomeFile} > ${label}_racon.fasta
+      racon -m 8 -x -6 -g -8 -w 500 -t ${params.threads} ${reads} ${params.outdir}/aligned_combined.txt ${genomeFile} > ${label}_racon.fasta
       """
     }
 /*
