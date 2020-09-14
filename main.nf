@@ -55,7 +55,7 @@ if (params.help) {
       container = "$medaka_container"
 
       input:
-      set val(label), file(genomeFile) from genome_runMinimap2
+      set val(label), file(genomeFile) from genome_runMinimap2.val
       path readsChunk from read_chunks
 
       output:
@@ -64,7 +64,7 @@ if (params.help) {
 
       script:
       """
-      minimap2 -ax map-ont ${genomeFile} ${readsChunk } > ${label}.sam
+      minimap2 -ax map-ont ${genomeFile} ${readsChunk} > ${label}.sam
       """
     }
 
