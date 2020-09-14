@@ -81,7 +81,7 @@ if (params.help) {
       input:
       //set val(label), file(genomeFile) from genome_runMinimap2
       val label from genomeLabel_runMinimap2.val
-      path genomeFile from into genome_runMinimap2.val
+      path genomeFile from genome_runMinimap2.val
       path readsChunk from read_chunks
 
       output:
