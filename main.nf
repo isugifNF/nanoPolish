@@ -107,7 +107,7 @@ process runMinimap2 {
 
       output:
       file("${label}_racon.fasta")
-      publishDir "${params.outdir}", mode: 'copy', pattern: '${label}_racon.fasta'
+      publishDir "${params.outdir}", mode: 'copy', pattern: "${label}_racon.fasta"
 
       script:
       """
