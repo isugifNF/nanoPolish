@@ -51,10 +51,10 @@ if (params.help) {
      val label into genomeLabel_ch
      file(genomeFile) into genomeFile_ch
 
-//     script:
-//     """
-//     echo "process requires a script"
-//     """
+     script:
+     """
+     echo "process requires a script"
+     """
    }
 
 // chunk the fastq file and create a channel for the chunks
