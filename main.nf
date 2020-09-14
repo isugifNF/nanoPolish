@@ -89,7 +89,7 @@ if (params.help) {
 
     alignment_output
         .collectFile(name: 'aligned_combined.txt', storeDir: params.outdir)
-        .set { overlaps_ch }
+        //.set { overlaps_ch }
 
 
 
