@@ -100,7 +100,9 @@ if (params.help) {
       input:
       path reads from read_file.val
       path genomeFile from genome_runMinimap2.val
-      path overlaps from overlaps_ch
+      //path overlaps from overlaps_ch
+      //file overlaps from alignment_output.collectFile(name: 'aligned_combined.txt')
+      path overlaps fromPath("${params.outdir}/aligned_combined.txt")
       val label from genomeLabel_runMinimap2.val
 
       output:
