@@ -43,6 +43,15 @@ if (params.help) {
    .map { file -> tuple(file.simpleName, file) }
    .into { genome_runMinimap2; genome_runAssemblathonStats; genome_BUSCO }
 
+   process {
+     input:
+     set val(label), file(genomeFile) from genome_runMinimap2
+
+     output:
+     val label into genomeLabel_ch
+     file(genomeFile) into genomeFile_ch
+   }
+
 // chunk the fastq file and create a channel for the chunks
    Channel
        .fromPath(params.reads)
@@ -55,7 +64,9 @@ if (params.help) {
       container = "$medaka_container"
 
       input:
-      set val(label), file(genomeFile) from genome_runMinimap2.val
+      //set val(label), file(genomeFile) from genome_runMinimap2
+      val label from genomeLabel_ch.val
+      path genomeFile from into genomeFile_ch.val
       path readsChunk from read_chunks
 
       output:
