@@ -38,11 +38,21 @@ if (params.help) {
 }
 
 // create a channel for the genome
+/*
   Channel
    .fromPath(params.genomes)
    .map { file -> tuple(file.simpleName, file) }
    .into { genome_runMinimap2; genome_runAssemblathonStats; genome_BUSCO }
+*/
+   Channel
+    .fromPath(params.genomes)
+    .map { file -> file.simpleName}
+    .into { genomeLabel_runMinimap2; genomeLabel_runAssemblathonStats; genomeLabel_BUSCO }
 
+    Channel
+     .fromPath(params.genomes)
+     .into { genome_runMinimap2; genome_runAssemblathonStats; genome_BUSCO }
+/*
    process splitTuple {
      input:
      set val(label), file(genomeFile) from genome_runMinimap2
@@ -56,7 +66,7 @@ if (params.help) {
      echo "process requires a script"
      """
    }
-
+*/
 // chunk the fastq file and create a channel for the chunks
    Channel
        .fromPath(params.reads)
@@ -70,8 +80,8 @@ if (params.help) {
 
       input:
       //set val(label), file(genomeFile) from genome_runMinimap2
-      val label from genomeLabel_ch.val
-      path genomeFile from into genomeFile_ch.val
+      val label from genomeLabel_runMinimap2.val
+      path genomeFile from into genome_runMinimap2.val
       path readsChunk from read_chunks
 
       output:
