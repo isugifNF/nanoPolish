@@ -44,6 +44,8 @@ if (params.help) {
    .map { file -> tuple(file.simpleName, file) }
    .into { genome_runMinimap2; genome_runAssemblathonStats; genome_BUSCO }
 */
+
+// Channels for the genome and its label
    Channel
     .fromPath(params.genomes)
     .map { file -> file.simpleName}
@@ -52,22 +54,13 @@ if (params.help) {
     Channel
      .fromPath(params.genomes)
      .into { genome_runMinimap2; genome_runAssemblathonStats; genome_BUSCO }
-/*
-   process splitTuple {
-     input:
-     set val(label), file(genomeFile) from genome_runMinimap2
 
-     output:
-     val label into genomeLabel_ch
-     path genomeFile into genomeFile_ch
+//Channels for reads and chunks of reads
 
-     script:
-     """
-     echo "process requires a script"
-     """
-   }
-*/
-// chunk the fastq file and create a channel for the chunks
+  Channel
+      .fromPath(params.reads)
+      .set { read_file }
+
    Channel
        .fromPath(params.reads)
        .splitFastq(by: params.chunkSize, file:true)
@@ -96,33 +89,30 @@ if (params.help) {
 
     alignment_output
         .collectFile(name: 'aligned_combined.txt', storeDir: params.outdir)
-        .subscribe {
-            println "Entries are saved to file: $it"
-        }
+        .set { overlaps_ch }
 
 
 
-
-
-
-/*
     process runRacon {
 
       container = "$racon_container"
 
       input:
-      set val(label), file(genomeFile) from genome_runAssemblathonStats
+      path reads from read_file.val
+      path genomeFile from genome_runMinimap2.val
+      path overlaps from overlaps_ch
+      val label from genomeLabel_runMinimap2.val
 
       output:
-      file("${label}.assemblathonStats")
-      publishDir "${params.outdir}/assemblathonStats", mode: 'copy', pattern: '*.assemblathonStats'
+      file("${label}_racon.fasta")
+      publishDir "${params.outdir}", mode: 'copy', pattern: '${label}_racon.fasta'
 
       script:
       """
-      new_Assemblathon.pl  ${genomeFile} > ${label}.assemblathonStats
+      racon -m 8 -x -6 -g -8 -w 500 -t ${params.threads} ${reads} ${overlaps} ${genomeFile} > ${label}_racon.fasta
       """
     }
-
+/*
 
   process runMedaka {
 
