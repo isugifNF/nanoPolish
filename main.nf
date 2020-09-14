@@ -59,7 +59,7 @@ if (params.help) {
 
   Channel
       .fromPath(params.reads)
-      .into { read_file, read_file2 }
+      .into { read_file; read_file2 }
 
    Channel
        .fromPath(params.reads)
