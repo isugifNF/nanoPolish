@@ -59,8 +59,8 @@ if (params.help) {
       path readsChunk from read_chunks
 
       output:
-      file("${label}.sam") into alignment_ch
-      publishDir "${params.outdir}/assemblyStats", mode: 'copy', pattern: '*.assemblyStats'
+      file("${label}.sam") into alignment_output
+      //publishDir "${params.outdir}/assemblyStats", mode: 'copy', pattern: '*.assemblyStat'
 
       script:
       """
@@ -68,8 +68,18 @@ if (params.help) {
       """
     }
 
+    alignment_output
+        .collectFile(name: 'aligned_combined.txt', storeDir: params.outdir)
+        .subscribe {
+            println "Entries are saved to file: $it"
+        }
 
 
+
+
+
+
+/*
     process runRacon {
 
       container = "$racon_container"
@@ -116,7 +126,7 @@ if (params.help) {
 
   }
 
-
+*/
 
     def isuGIFHeader() {
         // Log colors ANSI codes
