@@ -49,7 +49,7 @@ if (params.help) {
 
      output:
      val label into genomeLabel_ch
-     file(genomeFile) into genomeFile_ch
+     path genomeFile into genomeFile_ch
 
      script:
      """
