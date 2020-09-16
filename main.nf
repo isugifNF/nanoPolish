@@ -136,8 +136,8 @@ file("calls_to_draft.bam") into medakaAlign_ch
 script:
 """
 
-mini_align -i ${reads} -r ${raconGenome} -P -m \
-    -p calls_to_draft.bam \
+mini_align -i ${reads} -r ${raconGenome} -m \
+    -p calls_to_draft \
     -t ${params.threads}
 """
 
