@@ -177,13 +177,13 @@ file("out.hdf") into medakaConsensus_ch
 script:
 """
 medaka consensus ${inputAlign} out.hdf \
-    --model r941_min_high_g303 --batch 200 --threads 8 \
+    --model ${params.model} --batch 200 --threads 8 \
     --region ${region.trim()}
 """
 
 }
 //--region contig1 contig2 contig3 contig4
-
+//r941_min_high_g303
 
 // Medaka Step 3 collate results
 process medakaStich {
