@@ -176,7 +176,7 @@ container = "$medaka_container"
 
 input:
 path inputAlign from medakaAlign_ch.val
-path inputBai from medakaAlignBai_ch
+path inputBai from medakaAlignBai_ch.val
 val region from regions_ch.splitText()
 path modelIn from model_medaka.val
 
