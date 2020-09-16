@@ -29,10 +29,13 @@ medaka_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
       --outdir                       Output directory to place final output
       --threads                      Number of CPUs to use during the NanoPlot job [16]
       --queueSize                    Maximum number of jobs to be queued [18]
-
+      --model                        Medaka hdf5 model used during polishing.
+      --chunkSize                    Number of fasta records to use when splitting the input fastq raw reads
       --help                         This usage statement.
      """
 }
+
+// Add a --modelList param to list all the models like I did in assemblyStats for BUSCO
 
      // Show help message
 if (params.help) {
@@ -43,19 +46,19 @@ if (params.help) {
 // create a channel for the genome
 /*
   Channel
-   .fromPath(params.genomes)
+   .fromPath(params.genome)
    .map { file -> tuple(file.simpleName, file) }
    .into { genome_runMinimap2; genome_runAssemblathonStats; genome_BUSCO }
 */
 
 // Channels for the genome and its label
    Channel
-    .fromPath(params.genomes)
+    .fromPath(params.genome)
     .map { file -> file.simpleName}
     .into { genomeLabel_runMinimap2; genomeLabel_runRacon; genomeLabel_BUSCO }
 
     Channel
-     .fromPath(params.genomes)
+     .fromPath(params.genome)
      .into { genome_runMinimap2; genome_runRacon; genome_getScaffolds }
 
 //Channels for reads and chunks of reads
