@@ -182,10 +182,10 @@ val region from regions_ch.splitText()
 path modelIn from model_medaka.val
 
 output:
-file("out.hdf") into medakaConsensus_ch
+file("out*.hdf") into medakaConsensus_ch
 script:
 """
-medaka consensus ${inputAlign} out.hdf \
+medaka consensus ${inputAlign} out_${region.trim()}.hdf \
     --model ${modelIn} --batch 200 --threads 8 \
     --region ${region.trim()}
 """
