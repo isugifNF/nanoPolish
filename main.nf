@@ -68,6 +68,11 @@ if (params.help) {
        .splitFastq(by: params.chunkSize, file:true)
        .set { read_chunks }
 
+//Channel for medaka consensus model
+
+  Channel
+    .fromPath(params.model)
+    .set { model_medaka }
 
 process runMinimap2 {
 
@@ -171,13 +176,14 @@ container = "$medaka_container"
 input:
 path inputAlign from medakaAlign_ch.val
 val region from regions_ch.splitText()
+path modelIn from model_medaka
 
 output:
 file("out.hdf") into medakaConsensus_ch
 script:
 """
 medaka consensus ${inputAlign} out.hdf \
-    --model ${params.model} --batch 200 --threads 8 \
+    --model ${modelIn} --batch 200 --threads 8 \
     --region ${region.trim()}
 """
 
