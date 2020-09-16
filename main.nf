@@ -17,7 +17,7 @@ medaka_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
       Usage:
       The typical command for running the pipeline are as follows:
 
-      nextflow run isugifNF/assemblyStats --genomes "*fasta" --outdir newStats3 --threads 16 -profile condo,singularity
+      nextflow run isugifNF/nanoPolish --genome tail.fasta --reads test.fastq --chunkSize 25000 --model "medaka/medaka/data/r941_min_high_g303_model.hdf5" -profile singularity,condo
 
 
       Mandatory arguments:
@@ -81,6 +81,7 @@ if (params.help) {
 process runMinimap2 {
 
   container = "$medaka_container"
+  label 'short'
 
   input:
   //set val(label), file(genomeFile) from genome_runMinimap2
