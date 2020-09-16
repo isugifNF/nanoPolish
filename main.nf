@@ -81,7 +81,7 @@ if (params.help) {
 process runMinimap2 {
 
   container = "$medaka_container"
-  label 'short'
+  
 
   input:
   //set val(label), file(genomeFile) from genome_runMinimap2
