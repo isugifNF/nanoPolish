@@ -7,6 +7,8 @@
 racon_container = 'quay.io/biocontainers/racon:1.4.13--he513fc3_0'
 medaka_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
 
+//nextflow run isugifNF/nanoPolish --genomes tail.fasta --reads test.fastq -profile singularity,condo -resume
+
 
  def helpMessage() {
      log.info isuGIFHeader()
@@ -53,7 +55,7 @@ if (params.help) {
 
     Channel
      .fromPath(params.genomes)
-     .into { genome_runMinimap2; genome_runRacon; genome_BUSCO }
+     .into { genome_runMinimap2; genome_runRacon; genome_getScaffolds }
 
 //Channels for reads and chunks of reads
 
@@ -87,66 +89,121 @@ process runMinimap2 {
   """
 }
 
-    alignment_output
-        .collectFile(name: 'aligned_combined.sam', storeDir: params.outdir)
-        .set { overlaps_ch }
+alignment_output
+    .collectFile(name: 'aligned_combined.sam', storeDir: params.outdir)
+    .set { overlaps_ch }
 
 
 
-    process runRacon {
+process runRacon {
 
-      container = "$racon_container"
+  container = "$racon_container"
 
-      input:
-      path reads from read_file2.val
-      path genomeFile from genome_runRacon.val
-      path overlaps from overlaps_ch
-      //file overlaps from alignment_output.collectFile(name: 'aligned_combined.txt')
-      //path overlaps from Channel.fromPath("${params.outdir}/aligned_combined.txt")
-      val label from genomeLabel_runRacon.val
+  input:
+  path reads from read_file.val
+  path genomeFile from genome_runRacon.val
+  path overlaps from overlaps_ch
+  //file overlaps from alignment_output.collectFile(name: 'aligned_combined.txt')
+  //path overlaps from Channel.fromPath("${params.outdir}/aligned_combined.txt")
+  val label from genomeLabel_runRacon.val
 
-      output:
-      file("${label}_racon.fasta")
-      publishDir "${params.outdir}", mode: 'copy', pattern: "${label}_racon.fasta"
+  output:
+  file("${label}_racon.fasta") into raconGenome_ch
+  publishDir "${params.outdir}", mode: 'copy', pattern: "${label}_racon.fasta"
 
-      script:
-      """
-      racon -m 8 -x -6 -g -8 -w 500 -t ${params.threads} ${reads} ${overlaps} ${genomeFile} > ${label}_racon.fasta
-      """
-    }
-/*
+  script:
+  """
+  racon -m 8 -x -6 -g -8 -w 500 -t ${params.threads} ${reads} ${overlaps} ${genomeFile} > ${label}_racon.fasta
+  """
+}
 
-//      racon -m 8 -x -6 -g -8 -w 500 -t ${params.threads} ${reads} ${params.outdir}/aligned_combined.txt ${genomeFile} > ${label}_racon.fasta
-
-  process runMedaka {
-
-    container = "$medaka_container"
+// https://nanoporetech.github.io/medaka/installation.html
 
 
-    input:
-    set val(label), file(genomeFile) from genome_BUSCO
-    file(config) from config_ch.val
+//Run Medaka in 3 steps
 
-    output:
-    file("${label}/short_summary.specific.*.txt")
-    publishDir "${params.outdir}/BUSCOResults/${label}/", mode: 'copy', pattern: "${label}/short_summary.specific.*.txt"
-    file("${label}/*")
-    publishDir "${params.outdir}/BUSCO"
+// Step 1 Align reads to assembly
+process medakaAlign {
+container = "$medaka_container"
 
-    script:
-    """
-    busco \
-    -o ${label} \
-    -i ${genomeFile} \
-    ${params.options} \
-    -m ${params.mode} \
-    -c ${params.threads} \
-    -f
-    """
+input:
+path raconGenome from raconGenome_ch
+path reads from read_file2.val
 
-  }
+output:
+file("calls_to_draft.bam") into medakaAlign_ch
 
-*/
+script:
+"""
+
+mini_align -i ${reads} -r ${raconGenome} -P -m \
+    -p calls_to_draft.bam \
+    -t ${params.threads}
+"""
+
+}
+
+// Medaka Step 2 run consensus on each scaffold
+
+////Get scaffold list
+
+process getScaffolds {
+
+input:
+path genomeFile from genome_getScaffolds.val
+
+output:
+//publishDir "${params.outdir}"
+//file("nfhead.txt")
+stdout regions_ch
+
+script:
+"""
+grep ">" ${genomeFile} | perl -pe 's/>//g'
+"""
+
+}
+
+
+process medakaConsensus {
+container = "$medaka_container"
+
+input:
+path inputAlign from medakaAlign_ch.val
+val region from regions_ch.splitText()
+
+output:
+file("out.hdf") into medakaConsensus_ch
+script:
+"""
+medaka consensus ${inputAlign} out.hdf \
+    --model r941_min_high_g3210 --batch 200 --threads 8 \
+    --region ${region.trim()}
+"""
+
+}
+//--region contig1 contig2 contig3 contig4
+
+
+// Medaka Step 3 collate results
+process medakaStich {
+container = "$medaka_container"
+
+input:
+path hdf from medakaConsensus_ch.collect()
+
+output:
+
+script:
+"""
+medaka stitch ${hdf} polished.assembly.fasta
+"""
+
+}
+
+
+//r941_min_high_g3210
+
 
     def isuGIFHeader() {
         // Log colors ANSI codes
