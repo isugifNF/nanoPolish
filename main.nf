@@ -137,6 +137,7 @@ path reads from read_file2.val
 
 output:
 file("calls_to_draft.bam") into medakaAlign_ch
+file("calls_to_draft.bam.bai") into medakaAlignBai_ch
 
 script:
 """
@@ -175,6 +176,7 @@ container = "$medaka_container"
 
 input:
 path inputAlign from medakaAlign_ch.val
+path inputBai from medakaAlignBai_ch
 val region from regions_ch.splitText()
 path modelIn from model_medaka.val
 
