@@ -183,6 +183,7 @@ path modelIn from model_medaka.val
 
 output:
 file("out*.hdf") into medakaConsensus_ch
+
 script:
 """
 medaka consensus ${inputAlign} out_${region.trim()}.hdf \
@@ -202,10 +203,12 @@ input:
 path hdf from medakaConsensus_ch.collect()
 
 output:
+file("medaka_polished.assembly.fasta")
+publishDir "${params.outdir}", mode: 'copy', pattern: "medaka_polished.assembly.fasta"
 
 script:
 """
-medaka stitch ${hdf} polished.assembly.fasta
+medaka stitch ${hdf} medaka_polished.assembly.fasta
 """
 
 }

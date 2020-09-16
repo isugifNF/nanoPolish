@@ -10,3 +10,6 @@ git clone git@github.com:nanoporetech/medaka.git
 git lfs install
 git lfs pull
 ```
+
+
+nextflow run isugifNF/nanoPolish --genomes tail.fasta --reads test.fastq --chunkSize 25000 -profile singularity,condo -resume
