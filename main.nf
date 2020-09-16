@@ -5,9 +5,7 @@
  *************************************/
 
 racon_container = 'quay.io/biocontainers/racon:1.4.13--he513fc3_0'
-//medaka_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
-medaka_container = 'quay.io/broad-long-read-pipelines/lr-medaka:latest'
-minimap2_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
+medaka_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
 
 
 //nextflow run isugifNF/nanoPolish --genomes tail.fasta --reads test.fastq -profile singularity,condo -resume
@@ -79,8 +77,7 @@ if (params.help) {
 
 process runMinimap2 {
 
-  //container = "$medaka_container"
-container = "$minimap2_container"
+  container = "$medaka_container"
 
   input:
   //set val(label), file(genomeFile) from genome_runMinimap2
@@ -133,8 +130,7 @@ process runRacon {
 
 // Step 1 Align reads to assembly
 process medakaAlign {
-  //container = "$medaka_container"
-container = "$minimap2_container"
+container = "$medaka_container"
 
 input:
 path raconGenome from raconGenome_ch
