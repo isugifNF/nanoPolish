@@ -80,7 +80,7 @@ if (params.help) {
 process runMinimap2 {
 
   //container = "$medaka_container"
-container = "$minimap2_container"
+container = "minimap2_container"
 
   input:
   //set val(label), file(genomeFile) from genome_runMinimap2
@@ -133,7 +133,8 @@ process runRacon {
 
 // Step 1 Align reads to assembly
 process medakaAlign {
-container = "$medaka_container"
+  //container = "$medaka_container"
+container = "minimap2_container"
 
 input:
 path raconGenome from raconGenome_ch
