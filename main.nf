@@ -176,7 +176,7 @@ container = "$medaka_container"
 input:
 path inputAlign from medakaAlign_ch.val
 val region from regions_ch.splitText()
-path modelIn from model_medaka
+path modelIn from model_medaka.val
 
 output:
 file("out.hdf") into medakaConsensus_ch
