@@ -6,7 +6,7 @@
 
 racon_container = 'quay.io/biocontainers/racon:1.4.13--he513fc3_0'
 //medaka_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
-medaka_container = 'quay.io/biocontainers/broad-long-read-pipelines/lr-medaka:latest'
+medaka_container = 'quay.io/broad-long-read-pipelines/lr-medaka:latest'
 
 //nextflow run isugifNF/nanoPolish --genomes tail.fasta --reads test.fastq -profile singularity,condo -resume
 
