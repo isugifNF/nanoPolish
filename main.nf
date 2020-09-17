@@ -5,8 +5,8 @@
  *************************************/
 
 racon_container = 'quay.io/biocontainers/racon:1.4.13--he513fc3_0'
-medaka_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
-
+medaka_container = 'quay.io/biocontainers/samtools:1.9--h10a08f8_12'
+samtools19_container =
 
 //nextflow run isugifNF/nanoPolish --genomes tail.fasta --reads test.fastq -profile singularity,condo -resume
 
@@ -156,6 +156,8 @@ mini_align -i ${reads} -r ${raconGenome} -m \
 
 process samSortIndex {
 
+container = "$samtools19_container"
+
 input:
 path samFile from medakaAlignSam_ch
 
@@ -165,7 +167,16 @@ file("calls_to_draft.bam.bai") into medakaAlignBai_ch
 
 script:
 """
+PREFIX ="calls_to_draft"
+FILTER="-F 2308"
+SORT=${SORT:-''}
+THREADS=${param.threads}
 
+samtools view -@ ${THREADS} -T ${REFERENCE} ${FILTER} -bS ${samFile} |
+samtools sort -@ ${THREADS} ${SORT} -l 9 -o ${PREFIX}.bam - \
+    || (echo "Alignment pipeline failed." && exit 1)
+samtools index -@ ${THREADS} ${PREFIX}.bam ${PREFIX}.bam.bai \
+    || (echo "Failed to index alignment file." && exit 1)
 """
 
 }
