@@ -119,7 +119,7 @@ process runRacon {
   val label from genomeLabel_runRacon.val
 
   output:
-  file("${label}_racon.fasta") into raconGenome_ch, raconGenome_samtools_ch
+  file("${label}_racon.fasta") into raconGenome_ch
   publishDir "${params.outdir}", mode: 'copy', pattern: "${label}_racon.fasta"
 
   script:
@@ -138,7 +138,7 @@ process medakaAlign {
 container = "$medaka_container"
 
 input:
-path raconGenome from raconGenome_ch
+path raconGenome from raconGenome_ch.val
 path reads from read_file2.val
 
 output:
@@ -161,7 +161,7 @@ container = "$samtools19_container"
 
 input:
 path samFile from medakaAlignSam_ch
-path raconGenome2 from raconGenome_samtools_ch
+path raconGenome2 from raconGenome_ch.val
 
 output:
 file("calls_to_draft.bam") into medakaAlign_ch
