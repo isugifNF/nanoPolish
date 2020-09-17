@@ -81,7 +81,7 @@ if (params.help) {
 process runMinimap2 {
 
   container = "$medaka_container"
-  
+
 
   input:
   //set val(label), file(genomeFile) from genome_runMinimap2
@@ -141,8 +141,8 @@ path raconGenome from raconGenome_ch
 path reads from read_file2.val
 
 output:
-file("calls_to_draft.bam") into medakaAlign_ch
-file("calls_to_draft.bam.bai") into medakaAlignBai_ch
+file("calls_to_draft.sam") into medakaAlignSam_ch
+
 
 script:
 """
@@ -153,6 +153,24 @@ mini_align -i ${reads} -r ${raconGenome} -m \
 """
 
 }
+
+process samSortIndex {
+
+input:
+path samFile from medakaAlignSam_ch
+
+output:
+file("calls_to_draft.bam") into medakaAlign_ch
+file("calls_to_draft.bam.bai") into medakaAlignBai_ch
+
+script:
+"""
+
+"""
+
+}
+
+
 
 // Medaka Step 2 run consensus on each scaffold
 
