@@ -169,7 +169,8 @@ script:
 """
 PREFIX ="calls_to_draft"
 FILTER="-F 2308"
-SORT=${SORT:-''}
+#SORT=${SORT:-''}
+SORT=''
 THREADS=${param.threads}
 
 samtools view -@ ${THREADS} -T ${REFERENCE} ${FILTER} -bS ${samFile} |
