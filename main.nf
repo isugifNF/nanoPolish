@@ -170,11 +170,11 @@ script:
 """
 export PREFIX="calls_to_draft"
 export FILTER="-F 2308"
-export SORT=''
+
 export THREADS=${params.threads}
 
 samtools view -@ \${THREADS} -T \${REFERENCE} \${FILTER} -bS ${samFile} |
-samtools sort -@ \${THREADS} \${SORT} -l 9 -o \${PREFIX}.bam - \
+samtools sort -@ \${THREADS} -l 9 -o \${PREFIX}.bam - \
     || (echo "Alignment pipeline failed." && exit 1)
 samtools index -@ \${THREADS} \${PREFIX}.bam \${PREFIX}.bam.bai \
     || (echo "Failed to index alignment file." && exit 1)
