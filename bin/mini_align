@@ -153,7 +153,7 @@ if [ "$CHUNK" != "" ]; then
 fi
 
 minimap2 ${ALIGN_OPTS} -t ${THREADS} -a ${REFERENCE}.mmi ${INPUT} \
-  -A ${MATCH_SCORE} -B ${MISMATCH_SCORE} -O ${GAP_OPEN} -E ${GAP_EXTEND} > ${PREFIX}.sam
+  -A ${MATCH_SCORE} -B ${MISMATCH_SCORE} -O ${GAP_OPEN} -E ${GAP_EXTEND} -o ${PREFIX}.sam
 #  |
 #  samtools view -@ ${THREADS} -T ${REFERENCE} ${FILTER} -bS - |
 #  samtools sort -@ ${THREADS} ${SORT} -l 9 -o ${PREFIX}.bam - \
