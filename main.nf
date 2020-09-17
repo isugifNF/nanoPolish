@@ -168,10 +168,10 @@ file("calls_to_draft.bam.bai") into medakaAlignBai_ch
 
 script:
 """
-PREFIX ="calls_to_draft"
-FILTER="-F 2308"
-SORT=''
-THREADS=${params.threads}
+export PREFIX="calls_to_draft"
+export FILTER="-F 2308"
+export SORT=''
+export THREADS=${params.threads}
 
 samtools view -@ \${THREADS} -T \${REFERENCE} \${FILTER} -bS ${samFile} |
 samtools sort -@ \${THREADS} \${SORT} -l 9 -o \${PREFIX}.bam - \
