@@ -169,7 +169,7 @@ script:
 """
 PREFIX ="calls_to_draft"
 FILTER="-F 2308"
-#SORT=${SORT:-''}
+
 SORT=''
 THREADS=${param.threads}
 
