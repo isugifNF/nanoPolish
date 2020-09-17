@@ -153,9 +153,10 @@ if [ "$CHUNK" != "" ]; then
 fi
 
 minimap2 ${ALIGN_OPTS} -t ${THREADS} -a ${REFERENCE}.mmi ${INPUT} \
-  -A ${MATCH_SCORE} -B ${MISMATCH_SCORE} -O ${GAP_OPEN} -E ${GAP_EXTEND} |
-  samtools view -@ ${THREADS} -T ${REFERENCE} ${FILTER} -bS - |
-  samtools sort -@ ${THREADS} ${SORT} -l 9 -o ${PREFIX}.bam - \
-    || (echo "Alignment pipeline failed." && exit 1)
-samtools index -@ ${THREADS} ${PREFIX}.bam ${PREFIX}.bam.bai \
-    || (echo "Failed to index alignment file." && exit 1)
+  -A ${MATCH_SCORE} -B ${MISMATCH_SCORE} -O ${GAP_OPEN} -E ${GAP_EXTEND} > ${PREFIX}.sam
+#  |
+#  samtools view -@ ${THREADS} -T ${REFERENCE} ${FILTER} -bS - |
+#  samtools sort -@ ${THREADS} ${SORT} -l 9 -o ${PREFIX}.bam - \
+#    || (echo "Alignment pipeline failed." && exit 1)
+#samtools index -@ ${THREADS} ${PREFIX}.bam ${PREFIX}.bam.bai \
+#    || (echo "Failed to index alignment file." && exit 1)
