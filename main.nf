@@ -7,7 +7,7 @@
 racon_container = 'quay.io/biocontainers/racon:1.4.13--he513fc3_0'
 medaka_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
 samtools19_container = 'quay.io/biocontainers/samtools:1.9--h10a08f8_12'
- 
+
 
 //nextflow run isugifNF/nanoPolish --genomes tail.fasta --reads test.fastq -profile singularity,condo -resume
 
@@ -172,7 +172,7 @@ PREFIX ="calls_to_draft"
 FILTER="-F 2308"
 
 SORT=''
-THREADS=${param.threads}
+THREADS=${params.threads}
 
 samtools view -@ ${THREADS} -T ${REFERENCE} ${FILTER} -bS ${samFile} |
 samtools sort -@ ${THREADS} ${SORT} -l 9 -o ${PREFIX}.bam - \
