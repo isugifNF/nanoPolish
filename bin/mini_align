@@ -1,0 +1,161 @@
+#!/bin/bash
+set -eo pipefail
+
+usage="$(basename "$0") [-h] -r <reference> -i <fastq>
+
+Align fastq/a formatted reads to a genome using minimap2.
+
+    -h  show this help text.
+    -r  reference, should be a fasta file. If correspondng minimap indices
+        do not exist they will be created. (required).
+    -i  fastq/a input reads (required).
+    -I  split index every ~NUM input bases (default: 16G, this is larger
+        than the usual minimap2 default).
+    -f  force recreation of index file.
+    -a  aggressively extend gaps (sets -A1 -B2 -O2 -E1 for minimap2).
+    -P  filter to only primary alignments (i.e. run samtools view -F 2308).
+        Deprecated: this filter is now default and can be disabled with -A.
+    -A  do not filter alignments to primary alignments, output all.
+    -n  sort bam by read name.
+    -c  chunk size. Input reads/contigs will be broken into chunks
+        prior to alignment.
+    -t  alignment threads (default: 1).
+    -p  output file prefix (default: reads).
+    -m  fill MD tag.
+    -s  fill cs(=long) tag.
+    -X  only create reference index files.
+    -x  log all commands before running.
+    -M  match score
+    -S  mismatch score
+    -O  open gat penalty
+    -E  extend gap penalty."
+
+
+PREFIX="reads"
+ALIGN_OPTS="-x map-ont -L"
+INDEX_SIZE="16G"
+THREADS=1
+FILTER="-F 2308"
+SORT=${SORT:-''}
+CHUNK=""
+rflag=false
+iflag=false
+ONLY_INDEX=false
+FORCE_INDEX=false
+filter_set=0
+csmd_set=0
+aflag=false
+aparamflag=false
+xflag=false
+MATCH_SCORE="2"
+MISMATCH_SCORE="4"
+GAP_OPEN="4,24"
+GAP_EXTEND="2,1"
+
+while getopts ':hr:i:I:M:S:O:E:fPAmsnp:ac:t:Xx' option; do
+  case "$option" in
+    h  ) echo "$usage" >&2; exit;;
+    r  ) rflag=true; REFERENCE=$OPTARG;;
+    i  ) iflag=true; INPUT=$OPTARG;;
+    I  ) INDEX_SIZE=$OPTARG;;
+    f  ) FORCE_INDEX=true;;
+    P  ) filter_set=$(($filter_set + 1)); echo "-P option is deprecated";;
+    A  ) filter_set=$(($filter_set + 1)); FILTER="";;
+    m  ) csmd_set=$(($csmd_set + 1)); ALIGN_OPTS="${ALIGN_OPTS} --MD";;
+    s  ) csmd_set=$(($csmd_set + 1)); ALIGN_OPTS="${ALIGN_OPTS} --cs=long";;
+    n  ) SORT="${SORT} -n";;
+    p  ) PREFIX=$OPTARG;;
+    a  ) aflag=true; MATCH_SCORE="1"; MISMATCH_SCORE="2"; GAP_OPEN="2"; GAP_EXTEND="1";;
+    c  ) CHUNK=$OPTARG;;
+    t  ) THREADS=$OPTARG;;
+    X  ) ONLY_INDEX=true;;
+    x  ) xflag=true;;
+    M  ) aparamflag=true; MATCH_SCORE=$OPTARG;;
+    S  ) aparamflag=true; MISMATCH_SCORE=$OPTARG;;
+    O  ) aparamflag=true; GAP_OPEN=$OPTARG;;
+    E  ) aparamflag=true; GAP_EXTEND=$OPTARG;;
+    \? ) echo "Invalid option: -${OPTARG}." >&2; exit 1;;
+    :  ) echo "Option -$OPTARG requires an argument." >&2; exit 1;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+if [ "$filter_set" -gt 1 ]; then
+    echo "$usage" >&2;
+    echo "Both -A and -P were specified (-P is deprecated)." >&2;
+    exit 1;
+fi
+
+if [ "$csmd_set" -gt 1 ]; then
+    echo "$usage" >&2;
+    echo "Both -s and -m were specified (only one can be set)." >&2;
+    exit 1;
+fi
+
+if [ $aflag  = true ] && [ $aparamflag = true ]; then
+    echo "$usage" >&2;
+    echo " -a is not compatible with -M, -S, -O or -E." >&2;
+    exit 1;
+fi
+
+if ! $rflag; then
+  echo "$usage" >&2;
+  echo "-r must be specified." >&2;
+  exit 1;
+fi
+
+if ! $iflag && ! ${ONLY_INDEX}; then
+  echo "$usage" >&2;
+  echo "-i or -X must be specified." >&2;
+  exit 1;
+fi
+
+if $xflag; then
+  set -x;
+fi
+
+minimap_exts=('.mmi' '.fai')
+num_minimap_exts=${#minimap_exts[@]}
+missing=0
+for ext in "${minimap_exts[@]}"; do
+  minimap_index=${REFERENCE}${ext}
+  if ${FORCE_INDEX}; then
+    echo "Removing previous index file ${minimap_index}"
+    rm -rf ${minimap_index}
+  fi
+  if [[ ! -e ${minimap_index} ]]; then
+    ((missing+=1))
+  fi
+done;
+
+if [ "$missing" -eq 0 ]; then
+  echo "Found minimap files." >&2
+elif [ "$missing" -eq "$num_minimap_exts" ]; then
+  echo "Constructing minimap index." >&2
+  samtools faidx ${REFERENCE}
+  minimap2 -I ${INDEX_SIZE} ${ALIGN_OPTS} -d ${REFERENCE}.mmi ${REFERENCE} \
+      || (echo "Indexing draft failed" && exit 1)
+else
+  echo "Missing ${missing} index files. Clean up any files named
+${REFERENCE}<EXT> where <EXT> is one of ${minimap_exts[*]}." >&2
+  exit 1;
+fi
+
+if ${ONLY_INDEX}; then
+    exit 0
+fi
+
+if [ "$CHUNK" != "" ]; then
+  echo "Splitting input into ${CHUNK} chunks." >&2
+  split_fastx ${INPUT} ${INPUT}.chunks ${CHUNK} \
+      || (echo "Failed to split input into chunks.")
+  INPUT=${INPUT}.chunks
+fi
+
+minimap2 ${ALIGN_OPTS} -t ${THREADS} -a ${REFERENCE}.mmi ${INPUT} \
+  -A ${MATCH_SCORE} -B ${MISMATCH_SCORE} -O ${GAP_OPEN} -E ${GAP_EXTEND} |
+  samtools view -@ ${THREADS} -T ${REFERENCE} ${FILTER} -bS - |
+  samtools sort -@ ${THREADS} ${SORT} -l 9 -o ${PREFIX}.bam - \
+    || (echo "Alignment pipeline failed." && exit 1)
+samtools index -@ ${THREADS} ${PREFIX}.bam ${PREFIX}.bam.bai \
+    || (echo "Failed to index alignment file." && exit 1)
