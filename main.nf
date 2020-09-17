@@ -5,8 +5,9 @@
  *************************************/
 
 racon_container = 'quay.io/biocontainers/racon:1.4.13--he513fc3_0'
-medaka_container = 'quay.io/biocontainers/samtools:1.9--h10a08f8_12'
-samtools19_container =
+medaka_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
+samtools19_container = 'quay.io/biocontainers/samtools:1.9--h10a08f8_12'
+ 
 
 //nextflow run isugifNF/nanoPolish --genomes tail.fasta --reads test.fastq -profile singularity,condo -resume
 
