@@ -96,7 +96,7 @@ process runMinimap2 {
 
   script:
   """
-  minimap2 -ax map-ont ${genomeFile} ${readsChunk} > ${label}.sam
+  minimap2 -ax map-ont -L ${genomeFile} ${readsChunk} > ${label}.sam
   """
 }
 
