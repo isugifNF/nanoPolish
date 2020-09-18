@@ -170,6 +170,7 @@ file("calls_to_draft.bam.bai") into medakaAlignBai_ch
 
 script:
 """
+export TMPDIR=\$PWD
 export PREFIX="calls_to_draft"
 export FILTER="-F 2308"
 export SORT=''
