@@ -120,7 +120,7 @@ process runRacon {
 
   output:
   file("${label}_racon.fasta") into raconGenome_ch
-  file("${label}_racon.fasta") into raconGenome_ch2
+  file("${label}_racon.fasta") into raconGenome2_ch2
   publishDir "${params.outdir}", mode: 'copy', pattern: "${label}_racon.fasta"
 
   script:
@@ -162,7 +162,7 @@ container = "$samtools19_container"
 
 input:
 path samFile from medakaAlignSam_ch
-path raconGenome2 from raconGenome_ch2
+path raconGenome2 from raconGenome2_ch2
 
 output:
 file("calls_to_draft.bam") into medakaAlign_ch
