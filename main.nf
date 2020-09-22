@@ -119,8 +119,8 @@ process runRacon {
   val label from genomeLabel_runRacon.val
 
   output:
-  file("${label}_racon.fasta") into raconGenome_ch
-  file("${label}_racon.fasta") into raconGenome2_ch2
+  path("${label}_racon.fasta") into raconGenome_ch
+  path("${label}_racon.fasta") into raconGenome2_ch2
   publishDir "${params.outdir}", mode: 'copy', pattern: "${label}_racon.fasta"
 
   script:
@@ -143,7 +143,7 @@ path raconGenome from raconGenome_ch.val
 path reads from read_file2.val
 
 output:
-file("calls_to_draft.sam") into medakaAlignSam_ch
+path("calls_to_draft.sam") into medakaAlignSam_ch
 
 
 script:
@@ -165,8 +165,8 @@ path samFile from medakaAlignSam_ch
 path raconGenome2 from raconGenome2_ch2
 
 output:
-file("calls_to_draft.bam") into medakaAlign_ch
-file("calls_to_draft.bam.bai") into medakaAlignBai_ch
+path("calls_to_draft.bam") into medakaAlign_ch
+path("calls_to_draft.bam.bai") into medakaAlignBai_ch
 
 script:
 """
@@ -219,7 +219,7 @@ val region from regions_ch.splitText()
 path modelIn from model_medaka.val
 
 output:
-file("out*.hdf") into medakaConsensus_ch
+path("out*.hdf") into medakaConsensus_ch
 
 script:
 """
@@ -240,7 +240,7 @@ input:
 path hdf from medakaConsensus_ch.collect()
 
 output:
-file("medaka_polished.assembly.fasta")
+path("medaka_polished.assembly.fasta")
 publishDir "${params.outdir}", mode: 'copy', pattern: "medaka_polished.assembly.fasta"
 
 script:
