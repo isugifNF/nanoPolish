@@ -12,6 +12,17 @@ samtools19_container = 'quay.io/biocontainers/samtools:1.9--h10a08f8_12'
 //nextflow run isugifNF/nanoPolish --genomes tail.fasta --reads test.fastq -profile singularity,condo -resume
 
 
+manifest {
+  name = 'isugifNF/nanoPolish'
+  author = 'Andrew Severin'
+  homePage = 'www.bioinformaticsworkbook.org'
+  description = 'Nextflow adapted for bash scripting'
+  mainScript = 'racon.nf'
+  version = '1.0.0'
+}
+
+
+
  def helpMessage() {
      log.info isuGIFHeader()
      log.info """
