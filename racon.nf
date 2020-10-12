@@ -19,7 +19,7 @@ samtools19_container = 'quay.io/biocontainers/samtools:1.9--h10a08f8_12'
       Usage:
       The typical command for running the pipeline are as follows:
 
-      nextflow run isugifNF/nanoPolish --genome tail.fasta --reads test.fastq --chunkSize 25000 --model "medaka/medaka/data/r941_min_high_g303_model.hdf5" -profile singularity,condo
+      nextflow run isugifNF/nanoPolish/racon.nf --genome tail.fasta --reads test.fastq --chunkSize 25000 -profile singularity,condo
 
 
       Mandatory arguments:
