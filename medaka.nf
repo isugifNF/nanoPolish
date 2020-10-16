@@ -84,10 +84,10 @@ stdout regions_ch
 path("raconGenome.fasta") into raconGenome_ch
 path("raconGenome.fasta") into raconGenome2_ch2
 
-script:
+shell:
 """
-grep ">" ${genomeFile} | perl -pe 's/>//g' | awk '{print \$1}'
-awk '{print $1}' ${genomeFile} > raconGenome.fasta
+grep ">" !{genomeFile} | perl -pe 's/>//g' | awk '{print $1}'
+awk '{print $1}' !{genomeFile} > raconGenome.fasta
 """
 
 }
