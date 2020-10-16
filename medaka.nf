@@ -5,6 +5,7 @@
  *************************************/
 
 medaka_container = 'quay.io/biocontainers/medaka:1.0.3--py36hbecb4b7_1'
+samtools19_container = 'quay.io/biocontainers/samtools:1.9--h10a08f8_12'
 
  def helpMessage() {
      log.info isuGIFHeader()
