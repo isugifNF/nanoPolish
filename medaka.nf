@@ -86,7 +86,7 @@ path("raconGenome.fasta") into raconGenome2_ch2
 
 script:
 """
-grep ">" ${genomeFile} | perl -pe 's/>//g' | awk '{print $1}'
+grep ">" ${genomeFile} | perl -pe 's/>//g' | awk '{print \$1}'
 awk '{print $1}' ${genomeFile} > raconGenome.fasta
 """
 
